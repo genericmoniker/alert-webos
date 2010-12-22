@@ -1,0 +1,14 @@
+[
+	// Model
+	{ "source": "app/models/service-locator.js" },
+	{ "source": "app/models/local-storage.js" },
+	{ "source": "app/models/http-client.js" },
+	{ "source": "app/models/auth-service.js" },
+	{ "source": "app/models/site-service.js" },
+
+	// Assistants
+	{"source": "app\/assistants\/stage-assistant.js"},
+	{ "source": "app\/assistants\/welcome-assistant.js", "scenes": "welcome" },
+	{ "source": "app\/assistants\/login-assistant.js", "scenes": "login" },
+	{"source": "app\/assistants\/main-assistant.js","scenes": "main"}
+]
