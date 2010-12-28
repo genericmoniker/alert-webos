@@ -60,7 +60,7 @@ LoginAssistant.prototype.handleLogin = function() {
 	serviceLocator.authService.authenticate(this.usernameModel.value, this.passwordModel.value,
 		function() {
 			this.loginButton.mojo.deactivate();
-			this.controller.stageController.pushScene("main");
+			this.controller.stageController.swapScene("main");
 		}.bind(this),
 
 		function(response) {
