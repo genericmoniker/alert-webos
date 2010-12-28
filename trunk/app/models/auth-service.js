@@ -4,11 +4,12 @@ function AuthService() {
 	this.localStorage = null;
 }
 
-AuthService.prototype.authenticate = function(onSuccess, onFailure, onCredentialsNeeded) {
+AuthService.prototype.authenticateFromStorage = function(onSuccess, onFailure, onCredentialsNeeded) {
 	var authToken = this.localStorage.getValue("authToken");
+	// Note: We don't check for null to handle undefined case too.
 	if (authToken) {
 		this.httpClient.authToken = authToken;
-		this.httpClient.get("membership.svc", null, false, onSuccess, onFailure);
+		this.httpClient.get("membership.svc/validate", null, false, onSuccess, onFailure);
 	}	else {
 		if (onCredentialsNeeded) {
 			onCredentialsNeeded();

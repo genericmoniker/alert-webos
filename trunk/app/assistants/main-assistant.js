@@ -47,8 +47,8 @@ MainAssistant.prototype.loadSitesAndCameras = function() {
 	// Failure
 	function(response) {
 		Mojo.Log.error("Failed loading sites and cameras - %s - %s", response.status, response.statusMessage);
-		// TODO: showError (below)
-	});
+		this.showError("There was a problem loading the list of sites and cameras. (" + response.status + ")");
+	}.bind(this));
 };
 
 MainAssistant.prototype.updateSiteSelectorModel = function() {
@@ -71,7 +71,7 @@ MainAssistant.prototype.updateCameraListModel = function() {
 	for (var s = 0; s < sites.length; ++s) {
 		var site = sites[s];
 		if (site.id == this.siteSelectorModel.value) {
-			Mojo.Log.info("Selecting site: %s", site);
+			Mojo.Log.info("Selecting site: %s", site.name);
 			this.currentSite = site;
 			this.cameraList.mojo.noticeUpdatedItems(0, site.cameras);
 			break;
@@ -79,12 +79,12 @@ MainAssistant.prototype.updateCameraListModel = function() {
 	}
 };
 
-MainAssistant.prototype.showError = function() {
-	// TODO...
+MainAssistant.prototype.showError = function(errorMessage, retry) {
+	// TODO: retry
 	this.controller.showAlertDialog({
 		onChoose: function(value) {},
-		title: $L("My App ? v1.0"),
-		message: $L("Copyright 2008-2009, My Company Inc."),
+		title: "Error",
+		message: errorMessage,
 		choices: [
 			{ label: $L("OK"), value: "" }
 			]
@@ -93,7 +93,8 @@ MainAssistant.prototype.showError = function() {
 
 MainAssistant.prototype.cameraItemsCallback = function(listWidget, offset, limit) {
 	if (this.currentSite !== null) {
-		return this.currentSite.cameras.slice(offset);
+		var cameras = this.currentSite.cameras.slice(offset);
+		return cameras;
 	}
 	return [];
 };
