@@ -20,7 +20,7 @@ WelcomeAssistant.prototype.cleanup = function() {
 
 WelcomeAssistant.prototype.handleLogin = function() {
 
-	this.controller.stageController.pushScene("login");
+	this.controller.stageController.swapScene("login");
 /*
 	serviceLocator.authService.authenticate("ericsmith@byu.net", "video.1",
 		function() {
