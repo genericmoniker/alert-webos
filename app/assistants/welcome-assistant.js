@@ -11,23 +11,28 @@ WelcomeAssistant.prototype.setup = function() {
 		}
 	); 
 
-	this.handleLogin();
+	this.doLogin();
 };
 
 WelcomeAssistant.prototype.cleanup = function() {
 
 };
 
-WelcomeAssistant.prototype.handleLogin = function() {
-
-	this.controller.stageController.swapScene("login");
-/*
-	serviceLocator.authService.authenticate("ericsmith@byu.net", "video.1",
+WelcomeAssistant.prototype.doLogin = function() {
+	serviceLocator.authService.authenticateFromStorage(
+		// Success
 		function() {
-			this.controller.stageController.pushScene("main");
+			Mojo.Log.info("Login success with stored auth token");
+			this.controller.stageController.swapScene("main");
 		}.bind(this),
+		// Failure
+		function(response) {
+			Mojo.Log.warn("Login failure (%s)", response.status);
+			this.controller.stageController.swapScene("login");
+		}.bind(this),
+		// Credentials needed
 		function() {
-			// TODO: Report error
+			Mojo.Log.info("Login credentials needed");
+			this.controller.stageController.swapScene("login");
 		}.bind(this));
-*/
 };
