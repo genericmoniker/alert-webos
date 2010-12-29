@@ -5,6 +5,7 @@
 	{ "source": "app/models/http-client.js" },
 	{ "source": "app/models/auth-service.js" },
 	{ "source": "app/models/site-service.js" },
+	{ "source": "app/models/video-service.js" },
 
 	// Assistants
 	{"source": "app\/assistants\/stage-assistant.js"},
