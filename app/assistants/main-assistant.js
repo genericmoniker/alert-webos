@@ -4,24 +4,27 @@ function MainAssistant(argFromPusher) {
 
 MainAssistant.prototype.setup = function() {
 
-	this.controller.setupWidget("site-selector", this.siteSelectorAttributes = {
-		label: "Site"
-	},
-	this.siteSelectorModel = {
-		choices: []
+	this.controller.setupWidget("site-selector", 
+		this.siteSelectorAttributes = {
+			label: "Site"
+		},
+		this.siteSelectorModel = {
+			choices: []
 	});
 	this.siteSelector = this.controller.get("site-selector");
 	this.siteSelectorHandler = this.handleSiteSelectorChange.bind(this);
 	Mojo.Event.listen(this.siteSelector, Mojo.Event.propertyChange, this.siteSelectorHandler);
 
-	this.controller.setupWidget("camera-list", this.cameraListAttributes = {
-		itemTemplate: "views/main/camera-item-template.html",
-		itemsCallback: this.cameraItemsCallback.bind(this)
-	},
-	this.cameraListModel = {});
+	this.controller.setupWidget("camera-list", 
+		this.cameraListAttributes = {
+			itemTemplate: "main/camera-item-template"
+		},
+		this.cameraListModel = {
+			items: []// { name: "My cam" }, { name: "Your cam"}]
+	});
 	this.cameraList = this.controller.get("camera-list");
 	this.cameraListHandler = this.handleCameraListTap.bind(this);
-	Mojo.Event.listen(this.cameraList, Mojo.Event.tap, this.cameraListHandler);
+	Mojo.Event.listen(this.cameraList, Mojo.Event.listTap, this.cameraListHandler);
 
 	// Application Menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, this.appMenuAttributes = {},
@@ -33,7 +36,7 @@ MainAssistant.prototype.setup = function() {
 };
 
 MainAssistant.prototype.cleanup = function() {
-
+	// TODO: Clean up event handlers
 };
 
 MainAssistant.prototype.loadSitesAndCameras = function() {
@@ -45,9 +48,9 @@ MainAssistant.prototype.loadSitesAndCameras = function() {
 	}.bind(this),
 
 	// Failure
-	function(response) {
-		Mojo.Log.error("Failed loading sites and cameras - %s - %s", response.status, response.statusMessage);
-		this.showError("There was a problem loading the list of sites and cameras. (" + response.status + ")");
+	function(transport) {
+		Mojo.Log.error("Failed loading sites and cameras - %s - %s", transport.status, transport.statusMessage);
+		this.showError("There was a problem loading the list of sites and cameras. (" + transport.status + ")");
 	}.bind(this));
 };
 
@@ -73,7 +76,10 @@ MainAssistant.prototype.updateCameraListModel = function() {
 		if (site.id == this.siteSelectorModel.value) {
 			Mojo.Log.info("Selecting site: %s", site.name);
 			this.currentSite = site;
-			this.cameraList.mojo.noticeUpdatedItems(0, site.cameras);
+			this.cameraListModel = {
+				items: this.currentSite.cameras
+			};
+			this.controller.setWidgetModel("camera-list", this.cameraListModel);
 			break;
 		}
 	}
@@ -91,20 +97,37 @@ MainAssistant.prototype.showError = function(errorMessage, retry) {
 	});
 };
 
-MainAssistant.prototype.cameraItemsCallback = function(listWidget, offset, limit) {
-	if (this.currentSite !== null) {
-		var cameras = this.currentSite.cameras.slice(offset);
-		return cameras;
-	}
-	return [];
+MainAssistant.prototype.playVideo = function(url) {
+	this.controller.serviceRequest("palm://com.palm.applicationManager", {
+		method: "launch",
+		parameters: {
+			id: "com.palm.app.videoplayer",
+			params: {
+				target: url
+			}
+		}
+	});
 };
 
 MainAssistant.prototype.handleSiteSelectorChange = function(event) {
 	this.updateCameraListModel();
 };
 
-MainAssistant.prototype.handleCameraListTap = function(event) {};
-
+MainAssistant.prototype.handleCameraListTap = function(event) {
+	var camera = this.cameraListModel.items[event.index];
+	if (camera.isOnline) {
+		serviceLocator.videoService.getLiveVideoURL(camera,
+			// Success
+			function(url) {
+				this.playVideo(url);
+			}.bind(this),
+			// Failure
+			function(transport) {
+				this.showError("Unable to start playing video (" + transport.status + ")");
+			}.bind(this)
+		);
+	}
+};
 
 MainAssistant.prototype.handleCommand = function(event) {
 	if (event.type == Mojo.Event.commandEnable) {
