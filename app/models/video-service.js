@@ -1,21 +1,18 @@
 
 function VideoService() {
 	this.httpClient = null;
+	this.liveVideoRequestData = "<LiveVideoInfo>" + 
+		"<PlayerProtocol>RTSP</PlayerProtocol>" +
+		"<Video><VideoFormat>H264</VideoFormat><Width>640</Width><Height>480</Height></Video>" +
+		"<Audio><AudioFormat>aac</AudioFormat></Audio>" +
+		"</LiveVideoInfo>";
 }
 
 VideoService.prototype.getLiveVideoURL = function(camera, onSuccess, onFailure) {
-/*
-	var url = this.httpClient.baseURL + "livestream.svc/sources/" +
-		camera.mac + "?user=default&vformat=h264&pformat=rtsp&" +
-		"vwidth=640&vheight=480&aformat=aac&_auth=" +
-		this.httpClient.authToken;
-	Mojo.Log.info("Live video URL: " + url);
-	onSuccess(url);
-*/
 	try {
 		this.httpClient.post("camera.svc/" + camera.mac + "/LiveVideo",
 			null,
-			"<LiveVideoInfo><PlayerProtocol>RTSP</PlayerProtocol><Video><VideoFormat>H264</VideoFormat></Video></LiveVideoInfo>",
+			this.liveVideoRequestData,
 			false,
 			// Success
 			function(transport) {
