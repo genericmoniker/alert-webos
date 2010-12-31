@@ -28,15 +28,22 @@ SiteService.prototype.parseSites = function(xml) {
 		var cameras = sites[s].getElementsByTagName("CameraInfo");
 		site.cameras = [];
 		for (var c = 0; c < cameras.length; ++c) {
-			site.cameras.push({
+			var camera = {
 				mac: cameras[c].getElementsByTagName("Mac")[0].textContent.trim(),
 				name: cameras[c].getElementsByTagName("Name")[0].textContent.trim(),
 				isOnline: cameras[c].getElementsByTagName("IsOnline")[0].textContent.trim(),
 				ip: cameras[c].getElementsByTagName("InternalIPAddress")[0].textContent.trim(),
 				siteName: cameras[c].getElementsByTagName("SiteName")[0].textContent.trim()
-			});
+			};
+			camera.snapshotURL = this.getCameraSnapshotURL(camera);
+			site.cameras.push(camera);
 		}
 		result.push(site);
 	}
 	return result;
+};
+
+SiteService.prototype.getCameraSnapshotURL = function(camera) {
+	return this.httpClient.resolveURL(
+		"camera2.svc/" + camera.mac + "/snapshotviewable", false, true);
 };
