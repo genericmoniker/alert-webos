@@ -47,10 +47,20 @@ MainAssistant.prototype.setup = function() {
 
 	this.busyBegin();
 	this.loadSitesAndCameras();
+
+	this.refreshHandler = this.handleRefreshTimer.bind(this);
 };
 
 MainAssistant.prototype.cleanup = function() {
 	// TODO: Clean up event handlers
+};
+
+MainAssistant.prototype.activate = function(event) {
+	this.refreshId = setInterval(this.refreshHandler, 60000);
+};
+
+MainAssistant.prototype.deactivate = function(event) {
+	clearInterval(this.refreshId);
 };
 
 MainAssistant.prototype.busyBegin = function() {
@@ -62,6 +72,7 @@ MainAssistant.prototype.busyBegin = function() {
 };
 
 MainAssistant.prototype.busyEnd = function() {
+	if (this.busyRefCount === 0) { return; }
 	if (--this.busyRefCount === 0) {
 		$("busy-scrim").hide();
 		this.busySpinnerModel.spinning = false;
@@ -181,4 +192,9 @@ MainAssistant.prototype.handleCommand = function(event) {
 			break;
 		}
 	}
+};
+
+MainAssistant.prototype.handleRefreshTimer = function(event) {
+	Mojo.Log.info("Refresh timer fired.");
+	this.loadSitesAndCameras();
 };
