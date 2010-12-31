@@ -1,8 +1,21 @@
 function MainAssistant(argFromPusher) {
 	this.currentSite = null;
+	this.busyRefCount = 0;
 }
 
+// Inherit from AssistantBase
+MainAssistant.prototype = new AssistantBase();
+
 MainAssistant.prototype.setup = function() {
+
+	this.controller.setupWidget("busy-scrim",
+		this.busySpinnerAttributes = {
+			spinnerSize: "large"
+		},
+		this.busySpinnerModel = {
+			spinning: false
+		}
+	);
 
 	this.controller.setupWidget("site-selector", 
 		this.siteSelectorAttributes = {
@@ -32,6 +45,7 @@ MainAssistant.prototype.setup = function() {
 		visible: true
 	});
 
+	this.busyBegin();
 	this.loadSitesAndCameras();
 };
 
@@ -39,17 +53,34 @@ MainAssistant.prototype.cleanup = function() {
 	// TODO: Clean up event handlers
 };
 
+MainAssistant.prototype.busyBegin = function() {
+	if (this.busyRefCount++ === 0) {
+		$("busy-scrim").show();
+		this.busySpinnerModel.spinning = true;
+		this.controller.modelChanged(this.busySpinnerModel);
+	}
+};
+
+MainAssistant.prototype.busyEnd = function() {
+	if (--this.busyRefCount === 0) {
+		$("busy-scrim").hide();
+		this.busySpinnerModel.spinning = false;
+		this.controller.modelChanged(this.busySpinnerModel);
+	}
+};
+
 MainAssistant.prototype.loadSitesAndCameras = function() {
 	serviceLocator.siteService.loadSites(
 	// Success
 	function() {
+		this.busyEnd();
 		this.updateSiteSelectorModel();
 		this.updateCameraListModel();
 	}.bind(this),
 
 	// Failure
 	function(transport) {
-		Mojo.Log.error("Failed loading sites and cameras - %s - %s", transport.status, transport.statusMessage);
+		this.busyEnd();
 		this.showError("There was a problem loading the list of sites and cameras. (" + transport.status + ")");
 	}.bind(this));
 };
@@ -85,19 +116,8 @@ MainAssistant.prototype.updateCameraListModel = function() {
 	}
 };
 
-MainAssistant.prototype.showError = function(errorMessage, retry) {
-	// TODO: retry
-	this.controller.showAlertDialog({
-		onChoose: function(value) {},
-		title: "Error",
-		message: errorMessage,
-		choices: [
-			{ label: $L("OK"), value: "" }
-			]
-	});
-};
-
 MainAssistant.prototype.playVideo = function(url) {
+/* Using the video application: */
 	this.controller.serviceRequest("palm://com.palm.applicationManager", {
 		method: "launch",
 		parameters: {
@@ -107,6 +127,25 @@ MainAssistant.prototype.playVideo = function(url) {
 			}
 		}
 	});
+/*
+	this.controller.stageController.pushScene("media", url);
+*/
+};
+
+MainAssistant.prototype.relayVideo = function(camera) {
+	this.busyBegin();
+	serviceLocator.videoService.getLiveVideoURL(camera,
+		// Success
+		function(url) {
+			this.busyEnd();
+			this.playVideo(url);
+		}.bind(this),
+		// Failure
+		function(transport) {
+			this.busyEnd();
+			this.showError("Unable to start playing video (" + transport.status + ")");
+		}.bind(this)
+	);
 };
 
 MainAssistant.prototype.handleSiteSelectorChange = function(event) {
@@ -116,16 +155,13 @@ MainAssistant.prototype.handleSiteSelectorChange = function(event) {
 MainAssistant.prototype.handleCameraListTap = function(event) {
 	var camera = this.cameraListModel.items[event.index];
 	if (camera.isOnline) {
-		serviceLocator.videoService.getLiveVideoURL(camera,
-			// Success
-			function(url) {
-				this.playVideo(url);
-			}.bind(this),
-			// Failure
-			function(transport) {
-				this.showError("Unable to start playing video (" + transport.status + ")");
-			}.bind(this)
-		);
+		if (true /* is local */) {
+			this.playVideo("rtsp://" + camera.ip + "/LowResolutionVideo");
+		} else {
+			// this.relayVideo(camera);
+		}
+	} else {
+		this.showError("This camera is currently offline. Try again later."); 
 	}
 };
 

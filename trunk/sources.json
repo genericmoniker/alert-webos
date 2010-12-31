@@ -9,8 +9,10 @@
 
 	// Assistants
 	{"source": "app\/assistants\/stage-assistant.js"},
+	{ "source": "app\/assistants\/assistant-base.js" },
 	{ "source": "app\/assistants\/welcome-assistant.js", "scenes": "welcome" },
 	{ "source": "app\/assistants\/login-assistant.js", "scenes": "login" },
-	{ "source": "app\/assistants\/prefs-assistant.js", "scenes": "prefs"},
+	{ "source": "app\/assistants\/prefs-assistant.js", "scenes": "prefs" },
+	{ "source": "app\/assistants\/media-assistant.js", "scenes": "media" },
 	{"source": "app\/assistants\/main-assistant.js","scenes": "main"}
 ]

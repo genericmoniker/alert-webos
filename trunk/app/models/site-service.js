@@ -32,6 +32,7 @@ SiteService.prototype.parseSites = function(xml) {
 				mac: cameras[c].getElementsByTagName("Mac")[0].textContent.trim(),
 				name: cameras[c].getElementsByTagName("Name")[0].textContent.trim(),
 				isOnline: cameras[c].getElementsByTagName("IsOnline")[0].textContent.trim(),
+				ip: cameras[c].getElementsByTagName("InternalIPAddress")[0].textContent.trim(),
 				siteName: cameras[c].getElementsByTagName("SiteName")[0].textContent.trim()
 			});
 		}
