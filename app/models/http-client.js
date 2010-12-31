@@ -4,8 +4,16 @@ function HTTPClient() {
 	this.baseURLSecure = "https://alert.logitech.com/Services/";
 }
 
-HTTPClient.prototype.post = function(relativeURL, headers, data, secure, onSuccess, onFailure) {
+HTTPClient.prototype.resolveURL = function(relativeURL, secure, addAuth) {
 	var url = (secure ? this.baseURLSecure : this.baseURL) + relativeURL;
+	if (addAuth) {
+		url += "?_auth=" + this.authToken;
+	}
+	return url;
+};
+
+HTTPClient.prototype.post = function(relativeURL, headers, data, secure, onSuccess, onFailure) {
+	var url = this.resolveURL(relativeURL, secure);
 	if (headers === null) { headers = {}; }
 	this.addAuthorization(headers);
 	Mojo.Log.info("HTTP POST %s", url);
@@ -23,7 +31,7 @@ HTTPClient.prototype.post = function(relativeURL, headers, data, secure, onSucce
 };
 
 HTTPClient.prototype.get = function(relativeURL, headers, secure, onSuccess, onFailure) {
-	var url = (secure ? this.baseURLSecure : this.baseURL) + relativeURL;
+	var url = this.resolveURL(relativeURL, secure);
 	if (headers === null) { headers = {}; }
 	this.addAuthorization(headers);
 	Mojo.Log.info("HTTP GET %s", url);
