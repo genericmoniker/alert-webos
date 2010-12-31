@@ -1,3 +1,15 @@
 body.palm-dark {
 	background: url(../images/backdrop-dark.png) center center;
 }
+
+img.camera-offline {
+	background: url(../images/camera-offline.png) no-repeat center;
+}
+
+img.camera-alta {
+	background: url(../images/camera-alta.png) no-repeat center;
+}
+
+img.camera-snowbird {
+	background: url(../images/camera-snowbird.png) no-repeat center;
+}

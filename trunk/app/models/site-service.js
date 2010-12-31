@@ -31,11 +31,13 @@ SiteService.prototype.parseSites = function(xml) {
 			var camera = {
 				mac: cameras[c].getElementsByTagName("Mac")[0].textContent.trim(),
 				name: cameras[c].getElementsByTagName("Name")[0].textContent.trim(),
-				isOnline: cameras[c].getElementsByTagName("IsOnline")[0].textContent.trim(),
+				isOnline: this.stringToBoolean(cameras[c].getElementsByTagName("IsOnline")[0].textContent.trim()),
 				ip: cameras[c].getElementsByTagName("InternalIPAddress")[0].textContent.trim(),
+				productId: cameras[c].getElementsByTagName("ProductId")[0].textContent.trim(),
 				siteName: cameras[c].getElementsByTagName("SiteName")[0].textContent.trim()
 			};
 			camera.snapshotURL = this.getCameraSnapshotURL(camera);
+			camera.class = this.getCameraClass(camera);
 			site.cameras.push(camera);
 		}
 		result.push(site);
@@ -43,7 +45,20 @@ SiteService.prototype.parseSites = function(xml) {
 	return result;
 };
 
+SiteService.prototype.stringToBoolean = function(s) {
+	return (s == "true");
+};
+
 SiteService.prototype.getCameraSnapshotURL = function(camera) {
-	return this.httpClient.resolveURL(
-		"camera2.svc/" + camera.mac + "/snapshotviewable", false, true);
+	return this.httpClient.resolveURL("camera2.svc/" + camera.mac + "/snapshotviewable", false, true);
+};
+
+SiteService.prototype.getCameraClass = function(camera) {
+	if (!camera.isOnline) {
+		return "camera-offline";
+	} else if (camera.productId == 17) { 
+		return "camera-snowbird";
+	} else {
+		return "camera-alta";
+	}
 };
