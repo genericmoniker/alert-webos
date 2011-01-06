@@ -128,7 +128,8 @@ MainAssistant.prototype.updateCameraListModel = function() {
 };
 
 MainAssistant.prototype.playVideo = function(url) {
-/* Using the video application: */
+/* 
+	// Using the video application: 
 	this.controller.serviceRequest("palm://com.palm.applicationManager", {
 		method: "launch",
 		parameters: {
@@ -138,9 +139,11 @@ MainAssistant.prototype.playVideo = function(url) {
 			}
 		}
 	});
-/*
-	this.controller.stageController.pushScene("media", url);
 */
+
+	// Using a custom HTML5 scene:
+	this.controller.stageController.pushScene("media", url);
+
 };
 
 MainAssistant.prototype.relayVideo = function(camera) {
