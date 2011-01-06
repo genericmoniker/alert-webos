@@ -1,0 +1,2 @@
+- Spinner broken requesting sites (model watcher warning in log)
+- Warning about widget ' '
