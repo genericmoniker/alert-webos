@@ -2,14 +2,26 @@
 function AuthService() {
 	this.httpClient = null;
 	this.localStorage = null;
+	this.userIsAuthenticated = false;
+	this.username = "";
 }
 
 AuthService.prototype.authenticateFromStorage = function(onSuccess, onFailure, onCredentialsNeeded) {
 	var authToken = this.localStorage.getValue("authToken");
+	
 	// Note: We don't check for null to handle undefined case too.
 	if (authToken) {
+		this.username = this.localStorage.getValue("username");
 		this.httpClient.authToken = authToken;
-		this.httpClient.get("membership.svc/validate", null, false, onSuccess, onFailure);
+		this.httpClient.get("membership.svc/validate", null, false, 
+			// Success
+			function(transport) {
+				this.userIsAuthenticated = true;
+				onSuccess(transport);
+			}.bind(this),
+			
+			// Failure
+			onFailure);
 	}	else {
 		if (onCredentialsNeeded) {
 			onCredentialsNeeded();
@@ -28,13 +40,15 @@ AuthService.prototype.authenticate = function(username, password, onSuccess, onF
 	this.httpClient.post("membership.svc/authenticate", null, authInfo, true,
 
 		// Success
-		function(response) {
+		function(transport) {
 			Mojo.Log.info("Authenticate succeeded");
-			var authToken = response.getHeader("X-Authorization-Token");
+			var authToken = transport.getHeader("X-Authorization-Token");
 			this.httpClient.authToken = authToken;
 			this.localStorage.setValue("authToken", authToken);
+			this.localStorage.setValue("username", username);
+			this.userIsAuthenticated = true;
 			if (onSuccess) {
-				onSuccess(response);
+				onSuccess(transport);
 			}
 		}.bind(this),
 
@@ -44,6 +58,9 @@ AuthService.prototype.authenticate = function(username, password, onSuccess, onF
 
 AuthService.prototype.logout = function() {
 	this.localStorage.remove("authToken");
+	this.localStorage.remove("username");
+	this.userIsAuthenticated = false;
+	this.username = "";
 };
 
 AuthService.prototype.xmlEscape = function(string) {

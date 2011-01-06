@@ -33,17 +33,14 @@ MainAssistant.prototype.setup = function() {
 			itemTemplate: "main/camera-item-template"
 		},
 		this.cameraListModel = {
-			items: []// { name: "My cam" }, { name: "Your cam"}]
+			items: []
 	});
 	this.cameraList = this.controller.get("camera-list");
 	this.cameraListHandler = this.handleCameraListTap.bind(this);
 	Mojo.Event.listen(this.cameraList, Mojo.Event.listTap, this.cameraListHandler);
 
-	// Application Menu
-	this.controller.setupWidget(Mojo.Menu.appMenu, this.appMenuAttributes = {},
-	this.appMenuModel = {
-		visible: true
-	});
+	// Application menu (setup in each scene).
+	this.controller.setupWidget(Mojo.Menu.appMenu, {}, this.controller.stageController.appMenuModel);
 
 	this.busyBegin();
 	this.loadSitesAndCameras();
@@ -179,6 +176,7 @@ MainAssistant.prototype.handleCameraListTap = function(event) {
 	}
 };
 
+/* 
 MainAssistant.prototype.handleCommand = function(event) {
 	if (event.type == Mojo.Event.commandEnable) {
 		if (event.command == Mojo.Menu.prefsCmd) {
@@ -196,6 +194,7 @@ MainAssistant.prototype.handleCommand = function(event) {
 		}
 	}
 };
+*/
 
 MainAssistant.prototype.handleRefreshTimer = function(event) {
 	Mojo.Log.info("Refresh timer fired.");
