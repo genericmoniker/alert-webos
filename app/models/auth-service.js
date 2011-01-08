@@ -41,14 +41,19 @@ AuthService.prototype.authenticate = function(username, password, onSuccess, onF
 
 		// Success
 		function(transport) {
-			Mojo.Log.info("Authenticate succeeded");
 			var authToken = transport.getHeader("X-Authorization-Token");
-			this.httpClient.authToken = authToken;
-			this.localStorage.setValue("authToken", authToken);
-			this.localStorage.setValue("username", username);
-			this.userIsAuthenticated = true;
-			if (onSuccess) {
-				onSuccess(transport);
+			if (authToken) {
+				Mojo.Log.info("Authenticate succeeded: %s", transport.status);
+				this.httpClient.authToken = authToken;
+				this.localStorage.setValue("authToken", authToken);
+				this.localStorage.setValue("username", username);
+				this.userIsAuthenticated = true;
+				if (onSuccess) {
+					onSuccess(transport);
+				}
+			} else {
+				Mojo.Log.error("HTTPClient reports success, but no auth token.");
+				onFailure(transport);
 			}
 		}.bind(this),
 

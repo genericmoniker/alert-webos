@@ -1,11 +1,34 @@
 function HTTPClient() {
+	this.prefsService = null;
 	this.authToken = "";
+	this.host = "alert.logitech.com";
 	this.baseURL = "http://alert.logitech.com/Services/";
 	this.baseURLSecure = "https://alert.logitech.com/Services/";
 }
 
+HTTPClient.prototype.getHost = function() {
+	if (this.prefsService.useServerOverrides) {
+		var host = this.prefsService.webServerOverride;
+		if (host && host.length > 0) {
+			return host;
+		} 
+	}
+	return this.host;
+};
+
+HTTPClient.prototype.getBaseURL = function(secure) {
+	var host = this.getHost();
+	var baseURL = null;
+	if (secure) {
+		baseURL = "https://" + host + "/Services/";
+	} else {
+		baseURL = "http://" + host + "/Services/";
+	}
+	return baseURL;
+};
+
 HTTPClient.prototype.resolveURL = function(relativeURL, secure, addAuth) {
-	var url = (secure ? this.baseURLSecure : this.baseURL) + relativeURL;
+	var url = this.getBaseURL(secure) + relativeURL;
 	if (addAuth) {
 		url += "?_auth=" + this.authToken;
 	}

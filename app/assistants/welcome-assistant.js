@@ -11,6 +11,11 @@ WelcomeAssistant.prototype.setup = function() {
 		}
 	); 
 
+	if (serviceLocator.prefsService.useServerOverrides) {
+		Mojo.Controller.getAppController().showBanner(
+			"Note: Server overrides in effect.", {source: 'notification'});
+	}
+
 	this.doLogin();
 };
 
