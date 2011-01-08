@@ -143,7 +143,7 @@ MainAssistant.prototype.playVideo = function(url) {
 
 };
 
-MainAssistant.prototype.relayVideo = function(camera) {
+MainAssistant.prototype.requestVideo = function(camera) {
 	this.busyBegin();
 	serviceLocator.videoService.getLiveVideoURL(camera,
 		// Success
@@ -166,11 +166,7 @@ MainAssistant.prototype.handleSiteSelectorChange = function(event) {
 MainAssistant.prototype.handleCameraListTap = function(event) {
 	var camera = this.cameraListModel.items[event.index];
 	if (camera.isOnline) {
-		if (true /* is local */) {
-			this.playVideo("rtsp://" + camera.ip + "/LowResolutionVideo");
-		} else {
-			// this.relayVideo(camera);
-		}
+		this.requestVideo(camera);
 	} else {
 		this.showError("This camera is currently offline. Try again later."); 
 	}
