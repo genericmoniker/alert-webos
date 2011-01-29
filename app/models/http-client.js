@@ -19,6 +19,13 @@ HTTPClient.prototype.getHost = function() {
 HTTPClient.prototype.getBaseURL = function(secure) {
 	var host = this.getHost();
 	var baseURL = null;
+	
+	// Disable HTTPS if we've got server overrides so that
+	// we can also use self-signed certs.
+	if (this.prefsService.useServerOverrides) {
+		secure = false;
+	}
+	
 	if (secure) {
 		baseURL = "https://" + host + "/Services/";
 	} else {
