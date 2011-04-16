@@ -3,17 +3,14 @@ function MainAssistant(argFromPusher) {
 	this.busyRefCount = 0;
 }
 
-// Inherit from AssistantBase
-MainAssistant.prototype = new AssistantBase();
-
 MainAssistant.prototype.setup = function() {
 
-	this.controller.setupWidget("busy-scrim",
-		this.busySpinnerAttributes = {
-			spinnerSize: "large"
+	this.controller.setupWidget("busy-spinner",
+		this.busySpinnerAttributes = { 
+			spinnerSize: "large" 
 		},
-		this.busySpinnerModel = {
-			spinning: false
+		this.busySpinnerModel = { 
+			spinning: true 
 		}
 	);
 
@@ -23,7 +20,8 @@ MainAssistant.prototype.setup = function() {
 		},
 		this.siteSelectorModel = {
 			choices: []
-	});
+		}
+	);
 	this.siteSelector = this.controller.get("site-selector");
 	this.siteSelectorHandler = this.handleSiteSelectorChange.bind(this);
 	Mojo.Event.listen(this.siteSelector, Mojo.Event.propertyChange, this.siteSelectorHandler);
@@ -34,7 +32,8 @@ MainAssistant.prototype.setup = function() {
 		},
 		this.cameraListModel = {
 			items: []
-	});
+		}
+	);
 	this.cameraList = this.controller.get("camera-list");
 	this.cameraListHandler = this.handleCameraListTap.bind(this);
 	Mojo.Event.listen(this.cameraList, Mojo.Event.listTap, this.cameraListHandler);
@@ -49,7 +48,8 @@ MainAssistant.prototype.setup = function() {
 };
 
 MainAssistant.prototype.cleanup = function() {
-	// TODO: Clean up event handlers
+	Mojo.Event.stopListening(this.cameraList, Mojo.Event.listTap, this.cameraListHandler);
+	Mojo.Event.stopListening(this.siteSelector, Mojo.Event.propertyChange, this.siteSelectorHandler);
 };
 
 MainAssistant.prototype.activate = function(event) {
@@ -63,8 +63,10 @@ MainAssistant.prototype.deactivate = function(event) {
 MainAssistant.prototype.busyBegin = function() {
 	if (this.busyRefCount++ === 0) {
 		$("busy-scrim").show();
-		this.busySpinnerModel.spinning = true;
-		this.controller.modelChanged(this.busySpinnerModel);
+		if (!this.busySpinnerModel.spinning) {
+			this.busySpinnerModel.spinning = true;
+			this.controller.modelChanged(this.busySpinnerModel);
+		}
 	}
 };
 
@@ -89,7 +91,8 @@ MainAssistant.prototype.loadSitesAndCameras = function() {
 	// Failure
 	function(transport) {
 		this.busyEnd();
-		this.showError("There was a problem loading the list of sites and cameras. (" + transport.status + ")");
+		showError(this.controller, 
+			"There was a problem loading the list of sites and cameras. (" + transport.status + ")");
 	}.bind(this));
 };
 
@@ -151,10 +154,12 @@ MainAssistant.prototype.requestVideo = function(camera) {
 			this.busyEnd();
 			this.playVideo(url);
 		}.bind(this),
+
 		// Failure
 		function(transport) {
 			this.busyEnd();
-			this.showError("Unable to start playing video (" + transport.status + ")");
+			showError(this.controller, 
+				"Unable to start playing video (" + transport.status + ")");
 		}.bind(this)
 	);
 };
@@ -165,10 +170,19 @@ MainAssistant.prototype.handleSiteSelectorChange = function(event) {
 
 MainAssistant.prototype.handleCameraListTap = function(event) {
 	var camera = this.cameraListModel.items[event.index];
-	if (camera.isOnline) {
-		this.requestVideo(camera);
-	} else {
-		this.showError("This camera is currently offline. Try again later."); 
+
+	if (event.originalEvent.target.id === "snapshot-img") {
+		Mojo.Log.info("Tap on camera image");
+		if (camera.isOnline) {
+			this.requestVideo(camera);
+		} else {
+			showError(this.controller, 
+				"This camera is currently offline. Try again later."); 
+		}
+	}
+	else {
+		Mojo.Log.info("Tap on camera item");
+		this.controller.stageController.pushScene("camera", camera);
 	}
 };
 

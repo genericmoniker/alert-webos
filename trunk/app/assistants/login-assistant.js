@@ -57,7 +57,7 @@ LoginAssistant.prototype.handleLogin = function() {
 	this.loginButtonModel.disabled = true;
 	this.controller.modelChanged(this.loginButtonModel);
 
-	serviceLocator.authService.authenticate(this.usernameModel.value, this.passwordModel.value,
+	serviceLocator.authService.authenticate(this.usernameModel.value, this.passwordModel.value, true,
 		function() {
 			this.loginButton.mojo.deactivate();
 			this.controller.stageController.swapScene("main");

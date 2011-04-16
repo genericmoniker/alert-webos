@@ -1,5 +1,4 @@
 [
-	// Model
 	{ "source": "app/models/service-locator.js" },
 	{ "source": "app/models/local-storage.js" },
 	{ "source": "app/models/http-client.js" },
@@ -8,12 +7,12 @@
 	{ "source": "app/models/video-service.js" },
 	{ "source": "app/models/prefs-service.js" },
 
-	// Assistants
-	{"source": "app\/assistants\/stage-assistant.js"},
-	{ "source": "app\/assistants\/assistant-base.js" },
-	{ "source": "app\/assistants\/welcome-assistant.js", "scenes": "welcome" },
-	{ "source": "app\/assistants\/login-assistant.js", "scenes": "login" },
-	{ "source": "app\/assistants\/prefs-assistant.js", "scenes": "prefs" },
-	{ "source": "app\/assistants\/media-assistant.js", "scenes": "media" },
-	{"source": "app\/assistants\/main-assistant.js","scenes": "main"}
+	{"source": "app/assistants/stage-assistant.js"},
+	{ "source": "app/assistants/welcome-assistant.js", "scenes": "welcome" },
+	{ "source": "app/assistants/login-assistant.js", "scenes": "login" },
+	{ "source": "app/assistants/prefs-assistant.js", "scenes": "prefs" },
+	{ "source": "app/assistants/media-assistant.js", "scenes": "media" },
+	{"source": "app/assistants/main-assistant.js","scenes": "main"},
+	{ "source": "app/assistants/camera-assistant.js", "scenes": "camera" },
+	{ "source": "app/assistants/util.js" }
 ]
