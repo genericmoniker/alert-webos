@@ -13,3 +13,19 @@ img.camera-alta {
 img.camera-snowbird {
 	background: url(../images/camera-snowbird.png) no-repeat center;
 }
+
+img.camera {
+	display: block;
+	margin-top: 15px;
+	margin-left: auto;
+	margin-right: auto;
+	width: 280px;
+	height: 210px;
+	border: 1px solid #222;
+}
+
+img.play {
+	position:absolute;
+	left:10%;
+	top:87%;
+}

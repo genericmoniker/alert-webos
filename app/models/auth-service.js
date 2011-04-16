@@ -29,7 +29,7 @@ AuthService.prototype.authenticateFromStorage = function(onSuccess, onFailure, o
 	}
 };
 
-AuthService.prototype.authenticate = function(username, password, onSuccess, onFailure) {
+AuthService.prototype.authenticate = function(username, password, persist, onSuccess, onFailure) {
 
 	var authInfo = "<AuthInfo><UserName>" +
 		this.xmlEscape(username) + 
@@ -45,8 +45,10 @@ AuthService.prototype.authenticate = function(username, password, onSuccess, onF
 			if (authToken) {
 				Mojo.Log.info("Authenticate succeeded: %s", transport.status);
 				this.httpClient.authToken = authToken;
-				this.localStorage.setValue("authToken", authToken);
-				this.localStorage.setValue("username", username);
+				if (persist) {
+					this.localStorage.setValue("authToken", authToken);
+					this.localStorage.setValue("username", username);
+				}
 				this.userIsAuthenticated = true;
 				if (onSuccess) {
 					onSuccess(transport);
