@@ -33,6 +33,7 @@ SiteService.prototype.parseSites = function(xml) {
 				name: cameras[c].getElementsByTagName("Name")[0].textContent.trim(),
 				isOnline: this.stringToBoolean(cameras[c].getElementsByTagName("IsOnline")[0].textContent.trim()),
 				ip: cameras[c].getElementsByTagName("InternalIPAddress")[0].textContent.trim(),
+				ipExternal: cameras[c].getElementsByTagName("IPAddress")[0].textContent.trim(),
 				productId: cameras[c].getElementsByTagName("ProductId")[0].textContent.trim(),
 				siteName: cameras[c].getElementsByTagName("SiteName")[0].textContent.trim()
 			};

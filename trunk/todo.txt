@@ -1,2 +1,6 @@
-- Spinner broken requesting sites (model watcher warning in log)
 - Warning about widget ' '
+- Need to save current site selection (both for site refresh and between runs)
+- Need offline view for camera details view
+- Logger abstraction (could have separate loggers per service, with prefix in output)
+- Report to the client service
+

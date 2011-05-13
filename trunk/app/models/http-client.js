@@ -76,6 +76,20 @@ HTTPClient.prototype.get = function(relativeURL, headers, secure, onSuccess, onF
 		});
 };
 
+HTTPClient.prototype.getExternal = function(url, headers, onSuccess, onFailure) {
+	if (headers === null) { headers = {}; }
+	Mojo.Log.info("HTTP GET %s", url);
+	var request = new Ajax.Request(url, 
+		{
+			method: "get",
+			requestHeaders: headers,
+			onSuccess: onSuccess,
+			onFailure: onFailure,
+			onException: this.handleException,
+			onComplete: this.handleComplete
+		});
+};
+
 HTTPClient.prototype.addAuthorization = function(headers) {
 	if (this.authToken !== null && this.authToken.length > 0) {
 		headers.Authorization = this.authToken;
