@@ -159,7 +159,7 @@ MainAssistant.prototype.requestVideo = function(camera) {
 		function(transport) {
 			this.busyEnd();
 			showError(this.controller, 
-				"Unable to start playing video (" + transport.status + ")");
+				"Unable to start playing video (" + transport.status + ").");
 		}.bind(this)
 	);
 };

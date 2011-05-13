@@ -6,6 +6,7 @@
 	{ "source": "app/models/site-service.js" },
 	{ "source": "app/models/video-service.js" },
 	{ "source": "app/models/prefs-service.js" },
+	{ "source": "app/models/net-service.js" },
 
 	{"source": "app/assistants/stage-assistant.js"},
 	{ "source": "app/assistants/welcome-assistant.js", "scenes": "welcome" },
