@@ -66,7 +66,7 @@ PrefsAssistant.prototype.setup = function() {
 
 PrefsAssistant.prototype.cleanup = function() {
 	var prefs = serviceLocator.prefsService;
-	prefs.videoMode = this.modeSelectorModel.value;
+	prefs.videoMode = parseInt(this.modeSelectorModel.value);
 	prefs.useServerOverrides = this.overrideToggleModel.value;
 	prefs.webServerOverride = this.webTextFieldModel.value;
 	prefs.mediaServerOverride = this.mediaTextFieldModel.value;
