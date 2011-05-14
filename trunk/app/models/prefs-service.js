@@ -26,7 +26,7 @@ PrefsService.prototype.loadPref = function (name, defaultValue) {
 
 PrefsService.prototype.load = function() {
 	Mojo.Log.info("Loading preferences");
-	this.videoMode = this.loadPref("videoMode", this.videoMode);
+	this.videoMode = parseInt(this.loadPref("videoMode", this.videoMode));
 	this.useServerOverrides = this.loadPref("useServerOverrides", this.useServerOverrides);
 	this.webServerOverride = this.loadPref("webServerOverride", this.webServerOverride);
 	this.mediaServerOverride = this.loadPref("mediaServerOverride", this.mediaServerOverride);

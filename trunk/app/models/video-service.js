@@ -44,6 +44,8 @@ VideoService.prototype.selectVideoMode = function(camera, onRelay, onDirect, onF
 		case this.prefsService.VIDEO_MODE_AUTO:
 			this.autoSelectVideoMode(camera, onRelay, onDirect, onFailure);
 			break;
+		default:
+			Mojo.Log.error("Unexpected video mode: " + mode);
 	}
 };
 
