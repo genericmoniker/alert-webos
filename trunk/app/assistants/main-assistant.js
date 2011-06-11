@@ -1,5 +1,4 @@
 function MainAssistant(argFromPusher) {
-	this.currentSite = null;
 	this.busyRefCount = 0;
 }
 
@@ -50,6 +49,7 @@ MainAssistant.prototype.setup = function() {
 MainAssistant.prototype.cleanup = function() {
 	Mojo.Event.stopListening(this.cameraList, Mojo.Event.listTap, this.cameraListHandler);
 	Mojo.Event.stopListening(this.siteSelector, Mojo.Event.propertyChange, this.siteSelectorHandler);
+	serviceLocator.prefsService.save();
 };
 
 MainAssistant.prototype.activate = function(event) {
@@ -107,23 +107,19 @@ MainAssistant.prototype.updateSiteSelectorModel = function() {
 		});
 	}
 	this.siteSelectorModel.choices = choices;
-	this.siteSelectorModel.value = choices[0].value;
+	this.siteSelectorModel.value = serviceLocator.siteService.selectedSite.id;
 	this.controller.modelChanged(this.siteSelectorModel);
 };
 
 MainAssistant.prototype.updateCameraListModel = function() {
-	var sites = serviceLocator.siteService.sites;
-	for (var s = 0; s < sites.length; ++s) {
-		var site = sites[s];
-		if (site.id == this.siteSelectorModel.value) {
-			Mojo.Log.info("Selecting site: %s", site.name);
-			this.currentSite = site;
+	var site = serviceLocator.siteService.findSiteById(this.siteSelectorModel.value);
+	if (site) {
 			this.cameraListModel = {
-				items: this.currentSite.cameras
+				items: site.cameras
 			};
 			this.controller.setWidgetModel("camera-list", this.cameraListModel);
-			break;
-		}
+	} else {
+		Mojo.Log.error("Something wrong here... site not found: " + this.siteSelectorModel.value);
 	}
 };
 
@@ -166,6 +162,7 @@ MainAssistant.prototype.requestVideo = function(camera) {
 
 MainAssistant.prototype.handleSiteSelectorChange = function(event) {
 	this.updateCameraListModel();
+	serviceLocator.siteService.selectSiteById(this.siteSelectorModel.value);
 };
 
 MainAssistant.prototype.handleCameraListTap = function(event) {

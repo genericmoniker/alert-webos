@@ -70,10 +70,9 @@ VideoService.prototype.requestRelayVideo = function(camera, onSuccess, onFailure
 	var url = this.getRelayVideoRequestURL(camera);
 
 // TEMPORARY!
-	Mojo.Log.warn("Relay video is disabled for now.");
-	onFailure({ status: "Relay video is disabled for now"});
+// Mojo.Log.warn("Relay video is disabled for now.");
+// onFailure({ status: "Relay video is disabled for now"});
 
-/*
 	this.httpClient.post(url,
 		null,
 		this.liveVideoRequestData,
@@ -85,7 +84,6 @@ VideoService.prototype.requestRelayVideo = function(camera, onSuccess, onFailure
 		// Failure
 		onFailure
 	);
-*/
 };
 
 VideoService.prototype.getRelayVideoRequestURL = function(camera) {

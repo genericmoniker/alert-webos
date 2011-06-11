@@ -20,6 +20,13 @@ CameraAssistant.prototype.setup = function() {
 	this.playButtonHandler = this.handlePlayTap.bind(this);
 	Mojo.Event.listen(this.playButton, Mojo.Event.tap, this.playButtonHandler);
 
+	this.controller.setupWidget("alerts-toggle",
+		this.alertsToggleAttributes = {},
+		this.alertsToggleModel = {
+			value: true
+		}
+	);
+
 };
 
 CameraAssistant.prototype.cleanup = function() {
