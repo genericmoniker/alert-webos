@@ -1,7 +1,11 @@
 
 function SiteService() {
+	// Dependencies
 	this.httpClient = null;
+	this.prefsService = null;
+
 	this.sites = null;
+	this.selectedSite = null;
 }
 
 SiteService.prototype.loadSites = function(onSuccess, onFailure) {
@@ -9,6 +13,7 @@ SiteService.prototype.loadSites = function(onSuccess, onFailure) {
 		// Success
 		function(response) {
 			this.sites = this.parseSites(response.responseText);
+			this.selectedSite = this.getInitialSelectedSite();
 			onSuccess(this.sites);
 		}.bind(this),
 		
@@ -38,6 +43,10 @@ SiteService.prototype.parseSites = function(xml) {
 				siteName: cameras[c].getElementsByTagName("SiteName")[0].textContent.trim()
 			};
 			camera.snapshotURL = this.getCameraSnapshotURL(camera);
+			// This seems to make the snapshots appear faster, but they also don't 
+			// ever refresh anymore:
+			// camera.snapshot = new Image();
+			// camera.snapshot.src = camera.snapshotURL();
 			camera.class = this.getCameraClass(camera);
 			site.cameras.push(camera);
 		}
@@ -62,4 +71,30 @@ SiteService.prototype.getCameraClass = function(camera) {
 	} else {
 		return "camera-alta";
 	}
+};
+
+SiteService.prototype.getInitialSelectedSite = function() {
+	var selectedSiteId = this.prefsService.selectedSite;
+	var site = this.findSiteById(selectedSiteId);
+	if (site) {
+		return site;
+	}
+	return this.sites[0];
+};
+
+SiteService.prototype.selectSiteById = function(siteId) {
+	var site = this.findSiteById(siteId);
+	if (site) {
+		this.selectedSite = site;
+		this.prefsService.selectedSite = site.id;
+	}
+};
+
+SiteService.prototype.findSiteById = function(siteId) {
+	for (var s = 0; s < this.sites.length; ++s) {
+		if (this.sites[s].id === siteId) {
+			return this.sites[s];
+		}
+	}
+	return null;
 };

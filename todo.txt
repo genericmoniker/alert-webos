@@ -3,4 +3,14 @@
 - Need offline view for camera details view
 - Logger abstraction (could have separate loggers per service, with prefix in output)
 - Report to the client service
-
+- Some kind of loading indicator for background of camera detail snapshot?
+- Alerts
+- Multi-touch PTZ
+- Test RTSP on Dev server
+- Motion alerts
+- Snapshot refresh on camera details
+- Make sure there is no refresh when inactive
+x Keep screen awake when video is playing
+- Pop the video scene on deactivate
+- Enforce live video timeout
+x Scrim on media view

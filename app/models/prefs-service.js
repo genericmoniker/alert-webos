@@ -13,6 +13,7 @@ PrefsService.prototype.resetToDefaults = function() {
 	this.useServerOverrides = false;
 	this.webServerOverride = "";
 	this.mediaServerOverride = "";
+	this.selectedSite = "";
 };
 
 PrefsService.prototype.loadPref = function (name, defaultValue) {
@@ -30,6 +31,7 @@ PrefsService.prototype.load = function() {
 	this.useServerOverrides = this.loadPref("useServerOverrides", this.useServerOverrides);
 	this.webServerOverride = this.loadPref("webServerOverride", this.webServerOverride);
 	this.mediaServerOverride = this.loadPref("mediaServerOverride", this.mediaServerOverride);
+	this.selectedSite = this.loadPref("selectedSite", this.selectedSite);
 };
 
 PrefsService.prototype.save = function() {
@@ -38,5 +40,6 @@ PrefsService.prototype.save = function() {
 	this.localStorage.setValue("useServerOverrides", this.useServerOverrides);
 	this.localStorage.setValue("webServerOverride", this.webServerOverride);
 	this.localStorage.setValue("mediaServerOverride", this.mediaServerOverride);
+	this.localStorage.setValue("selectedSite", this.selectedSite);
 };
 

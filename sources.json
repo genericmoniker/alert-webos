@@ -5,6 +5,7 @@
 	{ "source": "app/models/auth-service.js" },
 	{ "source": "app/models/site-service.js" },
 	{ "source": "app/models/video-service.js" },
+	{ "source": "app/models/video-logger.js" },
 	{ "source": "app/models/prefs-service.js" },
 	{ "source": "app/models/net-service.js" },
 

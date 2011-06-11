@@ -14,6 +14,7 @@ function ServiceLocator() {
 	this.authService.httpClient = this.httpClient;
 	this.authService.localStorage = this.localStorage;
 	this.siteService.httpClient = this.httpClient;
+	this.siteService.prefsService = this.prefsService;
 	this.videoService.httpClient = this.httpClient;
 	this.videoService.prefsService = this.prefsService;
 	this.videoService.netService = this.netService;
