@@ -5,9 +5,9 @@ function ServiceLocator() {
 	this.httpClient = new HTTPClient();
 	this.authService = new AuthService();
 	this.localStorage = new LocalStorage();
-	this.siteService = new SiteService();
-	this.videoService = new VideoService();
 	this.prefsService = new PrefsService();
+	this.siteService = siteServiceCtor({ httpClient: this.httpClient, prefsService: this.prefsService });   //new SiteService();
+	this.videoService = new VideoService();
 	this.netService = new NetService();
 
 	// Resolve dependencies

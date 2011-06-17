@@ -97,7 +97,7 @@ MainAssistant.prototype.loadSitesAndCameras = function() {
 };
 
 MainAssistant.prototype.updateSiteSelectorModel = function() {
-	var sites = serviceLocator.siteService.sites;
+	var sites = serviceLocator.siteService.getSites();
 	var choices = [];
 	for (var s = 0; s < sites.length; ++s) {
 		var site = sites[s];
@@ -107,7 +107,7 @@ MainAssistant.prototype.updateSiteSelectorModel = function() {
 		});
 	}
 	this.siteSelectorModel.choices = choices;
-	this.siteSelectorModel.value = serviceLocator.siteService.selectedSite.id;
+	this.siteSelectorModel.value = serviceLocator.siteService.getSelectedSite().id;
 	this.controller.modelChanged(this.siteSelectorModel);
 };
 
