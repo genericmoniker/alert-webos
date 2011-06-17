@@ -1,100 +1,132 @@
+// Service for sites (and their cameras).
+// Dependencies:
+// spec.httpClient
+// spec.prefsService
+var siteServiceCtor = function(spec) {
 
-function SiteService() {
-	// Dependencies
-	this.httpClient = null;
-	this.prefsService = null;
+	var sites = null;
+	var selectedSite = null;
 
-	this.sites = null;
-	this.selectedSite = null;
-}
+	var stringToBoolean = function(s) {
+		return (s == "true");
+	};
 
-SiteService.prototype.loadSites = function(onSuccess, onFailure) {
-	this.httpClient.get("site.svc/?cameras=all&user=default", null, false,
-		// Success
-		function(response) {
-			this.sites = this.parseSites(response.responseText);
-			this.selectedSite = this.getInitialSelectedSite();
-			onSuccess(this.sites);
-		}.bind(this),
-		
-		// Failure
-		onFailure);
-};
+	var getCameraSnapshotURL = function(camera) {
+		return spec.httpClient.resolveURL(
+			"camera2.svc/" + camera.mac + "/snapshotviewable", false, true);
+	};
 
-SiteService.prototype.parseSites = function(xml) {
-	var xmlDoc = (new DOMParser()).parseFromString(xml, "application/xml");
-	var result = [];
-	var sites = xmlDoc.getElementsByTagName("SiteInfo");
-	for (var s = 0; s < sites.length; ++s) {
-		var site = {
-			name: sites[s].getElementsByTagName("SiteName")[0].textContent.trim(),
-			id: sites[s].getElementsByTagName("SiteId")[0].textContent.trim()
+	var getCameraClassName = function(camera) {
+		if (!camera.isOnline) {
+			return "camera-offline";
+		} else if (camera.productId == 17) { 
+			return "camera-snowbird";
+		} else {
+			return "camera-alta";
+		}
+	};
+
+	var getInitialSelectedSite = function() {
+		var selectedSiteId = spec.prefsService.selectedSite;
+		var site = findSiteById(selectedSiteId);
+		if (site) {
+			return site;
+		}
+		return sites[0];
+	};
+
+	var getSites = function() {
+		return sites;
+	};
+
+	var getSelectedSite = function() {
+		return selectedSite;
+	};
+
+	var findSiteById = function(siteId) {
+		for (var s = 0; s < sites.length; ++s) {
+			if (sites[s].id === siteId) {
+				return sites[s];
+			}
+		}
+		return null;
+	};
+
+	var selectSiteById = function(siteId) {
+		var site = this.findSiteById(siteId);
+		if (site) {
+			this.selectedSite = site;
+			this.prefsService.selectedSite = site.id;
+		}
+	};
+
+	var getChildText = function(element, childName) {
+		return element.getElementsByTagName(childName)[0].textContent.trim();
+	};
+
+	var parseCamera = function(cameraElement) {
+		var camera = {
+			mac: getChildText(cameraElement, "Mac"),
+			name: getChildText(cameraElement, "Name"),
+			isOnline: stringToBoolean(getChildText(cameraElement, "IsOnline")),
+			ip: getChildText(cameraElement, "InternalIPAddress"),
+			ipExternal: getChildText(cameraElement, "IPAddress"),
+			productId: getChildText(cameraElement, "ProductId"),
+			siteName: getChildText(cameraElement, "SiteName")
 		};
-		var cameras = sites[s].getElementsByTagName("CameraInfo");
+		camera.snapshotURL = getCameraSnapshotURL(camera);
+		// This seems to make the snapshots appear faster, but they also don't 
+		// ever refresh anymore:
+		// camera.snapshot = new Image();
+		// camera.snapshot.src = camera.snapshotURL();
+		camera.className = getCameraClassName(camera);
+		return camera;
+	};
+
+	var parseSite = function(siteElement) {
+		var site = {
+			name: getChildText(siteElement, "SiteName"),
+			id: getChildText(siteElement, "SiteId")
+		};
+		var cameraElements = siteElement.getElementsByTagName("CameraInfo");
 		site.cameras = [];
-		for (var c = 0; c < cameras.length; ++c) {
-			var camera = {
-				mac: cameras[c].getElementsByTagName("Mac")[0].textContent.trim(),
-				name: cameras[c].getElementsByTagName("Name")[0].textContent.trim(),
-				isOnline: this.stringToBoolean(cameras[c].getElementsByTagName("IsOnline")[0].textContent.trim()),
-				ip: cameras[c].getElementsByTagName("InternalIPAddress")[0].textContent.trim(),
-				ipExternal: cameras[c].getElementsByTagName("IPAddress")[0].textContent.trim(),
-				productId: cameras[c].getElementsByTagName("ProductId")[0].textContent.trim(),
-				siteName: cameras[c].getElementsByTagName("SiteName")[0].textContent.trim()
-			};
-			camera.snapshotURL = this.getCameraSnapshotURL(camera);
-			// This seems to make the snapshots appear faster, but they also don't 
-			// ever refresh anymore:
-			// camera.snapshot = new Image();
-			// camera.snapshot.src = camera.snapshotURL();
-			camera.class = this.getCameraClass(camera);
+		for (var c = 0; c < cameraElements.length; ++c) {
+			var camera = parseCamera(cameraElements[c]);
 			site.cameras.push(camera);
 		}
-		result.push(site);
-	}
-	return result;
-};
-
-SiteService.prototype.stringToBoolean = function(s) {
-	return (s == "true");
-};
-
-SiteService.prototype.getCameraSnapshotURL = function(camera) {
-	return this.httpClient.resolveURL("camera2.svc/" + camera.mac + "/snapshotviewable", false, true);
-};
-
-SiteService.prototype.getCameraClass = function(camera) {
-	if (!camera.isOnline) {
-		return "camera-offline";
-	} else if (camera.productId == 17) { 
-		return "camera-snowbird";
-	} else {
-		return "camera-alta";
-	}
-};
-
-SiteService.prototype.getInitialSelectedSite = function() {
-	var selectedSiteId = this.prefsService.selectedSite;
-	var site = this.findSiteById(selectedSiteId);
-	if (site) {
 		return site;
-	}
-	return this.sites[0];
-};
+	};
 
-SiteService.prototype.selectSiteById = function(siteId) {
-	var site = this.findSiteById(siteId);
-	if (site) {
-		this.selectedSite = site;
-		this.prefsService.selectedSite = site.id;
-	}
-};
-
-SiteService.prototype.findSiteById = function(siteId) {
-	for (var s = 0; s < this.sites.length; ++s) {
-		if (this.sites[s].id === siteId) {
-			return this.sites[s];
+	var parseSites = function(xml) {
+		var xmlDoc = (new DOMParser()).parseFromString(xml, "application/xml");
+		var result = [];
+		var siteElements = xmlDoc.getElementsByTagName("SiteInfo");
+		for (var s = 0; s < siteElements.length; ++s) {
+			var site = parseSite(siteElements[s]);
+			result.push(site);
 		}
-	}
-	return null;
+		return result;
+	};
+
+	var loadSites = function(onSuccess, onFailure) {
+		spec.httpClient.get("site.svc/?cameras=all&user=default", null, false,
+			// Success
+			function(response) {
+				sites = parseSites(response.responseText);
+				selectedSite = getInitialSelectedSite();
+				onSuccess(sites);
+			},
+			
+			// Failure
+			onFailure);
+	};
+
+	// Public Interface -------------------------------------
+	return {
+		loadSites: loadSites,
+		getSites: getSites,
+		selectSiteById: selectSiteById,
+		getSelectedSite: getSelectedSite,
+		findSiteById: findSiteById
+	};
 };
