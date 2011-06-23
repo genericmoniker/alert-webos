@@ -1,7 +1,7 @@
 function WelcomeAssistant(argFromPusher) {}
 
 WelcomeAssistant.prototype.setup = function() {
-
+	console.info("WelcomeAssistant setup");
 	this.controller.setupWidget("spinner",
 		this.attributes = {
 			spinnerSize: "large"
@@ -20,7 +20,7 @@ WelcomeAssistant.prototype.setup = function() {
 };
 
 WelcomeAssistant.prototype.cleanup = function() {
-
+	console.info("WelcomeAssistant cleanup");
 };
 
 WelcomeAssistant.prototype.doLogin = function() {
