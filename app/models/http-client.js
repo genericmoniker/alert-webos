@@ -1,105 +1,124 @@
-function HTTPClient() {
-	this.prefsService = null;
-	this.authToken = "";
-	this.host = "alert.logitech.com";
-	this.baseURL = "http://alert.logitech.com/Services/";
-	this.baseURLSecure = "https://alert.logitech.com/Services/";
-}
+// HTTP client abstraction.
+// Dependencies:
+// spec.prefsService
+var httpClientCtor = function(spec) {
 
-HTTPClient.prototype.getHost = function() {
-	if (this.prefsService.useServerOverrides) {
-		var host = this.prefsService.webServerOverride;
-		if (host && host.length > 0) {
-			return host;
-		} 
-	}
-	return this.host;
-};
+	var authToken = "";
+	var defaultHost = "alert.logitech.com";
 
-HTTPClient.prototype.getBaseURL = function(secure) {
-	var host = this.getHost();
-	var baseURL = null;
-	
-	// Disable HTTPS if we've got server overrides so that
-	// we can also use self-signed certs.
-	if (this.prefsService.useServerOverrides) {
-		secure = false;
-	}
-	
-	if (secure) {
-		baseURL = "https://" + host + "/Services/";
-	} else {
-		baseURL = "http://" + host + "/Services/";
-	}
-	return baseURL;
-};
+	var setAuthToken = function(token) {
+		authToken = token;
+	};
 
-HTTPClient.prototype.resolveURL = function(relativeURL, secure, addAuth) {
-	var url = this.getBaseURL(secure) + relativeURL;
-	if (addAuth) {
-		url += "?_auth=" + this.authToken;
-	}
-	return url;
-};
+	var getHost = function() {
+		if (spec.prefsService.useServerOverrides) {
+			var hostOverride = spec.prefsService.webServerOverride;
+			if (hostOverride && hostOverride.length > 0) {
+				return hostOverride;
+			} 
+		}
+		return defaultHost;
+	};
 
-HTTPClient.prototype.post = function(relativeURL, headers, data, secure, onSuccess, onFailure) {
-	var url = this.resolveURL(relativeURL, secure);
-	if (headers === null) { headers = {}; }
-	this.addAuthorization(headers);
-	Mojo.Log.info("HTTP POST %s", url);
-	var request = new Ajax.Request(url, 
-		{
-			method: "post",
-			contentType: "application/xml",
-			postBody: data,
-			requestHeaders: headers,
-			onSuccess: onSuccess,
-			onFailure: onFailure,
-			onException: this.handleException,
-			onComplete: this.handleComplete
+	var getBaseURL = function(secure) {
+		var host = getHost();
+		var baseURL = null;
+		
+		// Disable HTTPS if we've got server overrides so that
+		// we can also use self-signed certs.
+		if (spec.prefsService.useServerOverrides) {
+			secure = false;
+		}
+		
+		if (secure) {
+			baseURL = "https://" + host + "/Services/";
+		} else {
+			baseURL = "http://" + host + "/Services/";
+		}
+		return baseURL;
+	};
+
+	var resolveURL = function(relativeURL, secure, addAuth) {
+		var url = getBaseURL(secure) + relativeURL;
+		if (addAuth) {
+			url += "?_auth=" + authToken;
+		}
+		return url;
+	};
+
+	var addAuthorization = function(headers) {
+		if (authToken !== null && authToken.length > 0) {
+			headers.Authorization = authToken;
+		}
+	};
+
+	var handleException = function(response, e) {
+		Mojo.Log.error("HTTP request exception: %s", e.message);
+	};
+
+	var handleComplete = function(response) {
+		Mojo.Log.info("HTTP request complete: %j", response);
+	};
+
+	var sendRequest = function(relativeURL, options) {
+		var url = resolveURL(relativeURL, options.secure);
+		options.requestHeaders = options.requestHeaders || {};
+		addAuthorization(options.requestHeaders);
+		options.onException = handleException;
+		options.onComplete = handleComplete;
+		var request = new Ajax.Request(url, options);
+	};
+
+// TODO: Object specifier rather than lots of parameters
+	var post = function(relativeURL, headers, data, secure, onSuccess, onFailure) {
+		sendRequest(relativeURL, {
+				secure: secure,
+				method: "post",
+				contentType: "application/xml",
+				postBody: data,
+				requestHeaders: headers,
+				onSuccess: onSuccess,
+				onFailure: onFailure,
+				onException: handleException,
+				onComplete: handleComplete
 		});
-};
+	};
 
-HTTPClient.prototype.get = function(relativeURL, headers, secure, onSuccess, onFailure) {
-	var url = this.resolveURL(relativeURL, secure);
-	if (headers === null) { headers = {}; }
-	this.addAuthorization(headers);
-	Mojo.Log.info("HTTP GET %s", url);
-	var request = new Ajax.Request(url, 
-		{
-			method: "get",
-			requestHeaders: headers,
-			onSuccess: onSuccess,
-			onFailure: onFailure,
-			onException: this.handleException,
-			onComplete: this.handleComplete
-		});
-};
+// TODO: Object specifier rather than lots of parameters
+	var get = function(relativeURL, headers, secure, onSuccess, onFailure) {
+		sendRequest(relativeURL, {
+				secure: secure,
+				method: "get",
+				requestHeaders: headers,
+				onSuccess: onSuccess,
+				onFailure: onFailure,
+				onException: handleException,
+				onComplete: handleComplete
+			});
+	};
 
-HTTPClient.prototype.getExternal = function(url, headers, onSuccess, onFailure) {
-	if (headers === null) { headers = {}; }
-	Mojo.Log.info("HTTP GET %s", url);
-	var request = new Ajax.Request(url, 
-		{
-			method: "get",
-			requestHeaders: headers,
-			onSuccess: onSuccess,
-			onFailure: onFailure,
-			onException: this.handleException,
-			onComplete: this.handleComplete
-		});
-};
 
-HTTPClient.prototype.addAuthorization = function(headers) {
-	if (this.authToken !== null && this.authToken.length > 0) {
-		headers.Authorization = this.authToken;
-	}
-};
+// TODO: Object specifier rather than lots of parameters
+	var getExternal = function(url, headers, onSuccess, onFailure) {
+		headers = headers || {};
+		var request = new Ajax.Request(url, 
+			{
+				method: "get",
+				requestHeaders: headers,
+				onSuccess: onSuccess,
+				onFailure: onFailure,
+				onException: handleException,
+				onComplete: handleComplete
+			});
+	};
 
-HTTPClient.prototype.handleException = function(response, e) {
-	Mojo.Log.error("HTTP request exception: %s", e.message);
-};
 
-HTTPClient.prototype.handleComplete = function(response) {
-	Mojo.Log.info("HTTP request complete: %j", response);
+	// Public Interface -------------------------------------
+	return {
+		setAuthToken: setAuthToken,
+		post: post,
+		get: get,
+		getExternal: getExternal,
+		resolveURL: resolveURL
+	};
 };

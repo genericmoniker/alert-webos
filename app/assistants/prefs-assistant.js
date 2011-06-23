@@ -5,8 +5,8 @@ PrefsAssistant.prototype.setup = function() {
 	var auth = serviceLocator.authService;
 	var prefs = serviceLocator.prefsService;
 
-	if (auth.userIsAuthenticated) {
-		$("username").innerHTML = auth.username;
+	if (auth.getUserIsAuthenticated()) {
+		$("username").innerHTML = auth.getUsername();
 	} else {
 		$("username").innerHTML = "Not logged in";
 	}
@@ -14,7 +14,7 @@ PrefsAssistant.prototype.setup = function() {
 	this.controller.setupWidget("logout-button", this.logoutButtonAttributes = {},
 	this.logoutButtonModel = {
 		label: "Logout",
-		disabled: !auth.userIsAuthenticated
+		disabled: !auth.getUserIsAuthenticated()
 	});
 	this.logoutButton = this.controller.get("logout-button");
 	this.logoutHandler = this.handleLogout.bind(this);

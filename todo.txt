@@ -1,12 +1,17 @@
 - Warning about widget ' '
 x Need to save current site selection (both for site refresh and between runs)
+- Handle auth token invalidation on password change
+- Error message for video when running in emulator
 - Need offline view for camera details view
-- Logger abstraction (could have separate loggers per service, with prefix in output)
+- Logger abstraction (could have separate loggers per service, with prefix in output) - 
+  use the console object http://stackoverflow.com/questions/55633/where-is-the-console-api-for-webkit-safari
+  except Mojo.Log has more features (variable replacement)
 - Report to the client service
 - Some kind of loading indicator for background of camera detail snapshot?
 - Alerts
 - Multi-touch PTZ
-- Test RTSP on Dev server
+x Test RTSP on Dev server
+- Test RTSP on Production server
 - Motion alerts
 - Snapshot refresh on camera details
 - Make sure there is no refresh when inactive
