@@ -1,3 +1,4 @@
+x Prefs scene is broken!
 - Warning about widget ' '
 x Need to save current site selection (both for site refresh and between runs)
 - Handle auth token invalidation on password change
